@@ -1,115 +1,233 @@
-//////// PROJECT 0: 1000 bornes ///////////
-console.log("Hey!")
+//////// PROJECT 0: 1000 bornes //////////
 
-// VARIABLES
-const config = [
-  {
-    category: 'Hazards',
-    type: [
-        {
-        cardName: 'Accident',
-        quantity: 3
-        },
-        {
-        cardName: 'Out of gas',
-        quantity: 3
-        },
-        {
-        cardName: 'Flat tire',
-        quantity: 3
-        },
-        {
-        cardName: 'Stop',
-        quantity: 5
-        }],
-
-    category: 'Remedy',
-    type:[ 
-        {
-        cardName: 'Repairs',
-        opposite: 'Accident',
-        quantity: 6
-        },
-        {
-        cardName: 'Gasoline',
-        opposite: 'Out of gas',
-        quantity: 6
-        },
-        {
-        cardName: 'Spare tire',
-        opposite: 'Flat tire',
-        quantity: 6
-        },
-        {
-        cardName: 'Roll',
-        opposite: 'Stop',
-        quantity: 14
-        }],
-  
-
-    category: 'Distance',
-    type: [
-        {
-        cardName: 'km25',
-        value: 25,
-        quantity: 10
-        },
-        {
-        cardName: 'km50',
-        value: 50,
-        quantity: 10
-        },
-        {
-        cardName: 'km75',
-        value: 75,
-        quantity: 10
-        },
-        {
-        cardName: 'km100',
-        value: 100,
-        quantity: 12
-        },
-        {
-        cardName: 'km200',
-        value: 200,
-        quantity: 4
-        }],
-  }];
-
-// CLASS PLAYER
 class Player {
-  constructor() {
+  constructor(name) {
     this.name = name;
-    this.cardsInHand = [];
-    this.rollPile = [null, 1, -1];
-    this.hazardPile = [null, 1, -1];
-    this.remedyPile = [null, 1, -1];
-    this.distancePile = [];
+    // this.cardsInHand = [];
+    // this.playedPile = [];
     this.kmTraveled = 0;
+    this.state = 'stopped'; // stopped | accidented | going | out_of_gas | ...
+  }
+
+  isGoing() {
+    return (this.state == 'going');
+  }
+
+  isAccidented() {
+    return (this.state == 'accidented');
+  }
+  
+  getIntoAccident() {
+    this.state = 'accidented';
+  }
+  runOutOfGas() {
+    this.state = 'out_of_gas';
+  }
+
+  setState(newState) {
+    // TODO : validation of the state value
+    this.state = newState;
   }
 }
 
 class Game {
   constructor() {
-    this.drawPile = [];
+    // INIT
+    // 1/ shuffle the cards
+    // 2/ give 6 cards to each player, we see both players'hand on screen
+    // 3/ rest of [cards] is the draw pile
+    // 3/ both player traveled 0 kmTraveled
+    // 4/ rollPile, hazardPile, remedyPile, and discardPile are empty
+
     this.discardPile = [];
     this.turns = 0;
+  
+    // stolen from https://javascript.info/task/shuffle
+    function shuffle(array) {
+      array.sort(() => Math.random() - 0.5);
+    }
+
+    function makeCards(typeOfCard, count, ...args) {
+      let cards = [];
+      for(let i = 1; i <= count; ++i) {
+        cards.push(new typeOfCard(...args));
+      }
+      return cards;
+    }
+
+    this.drawPile = [
+      // Hazard cards
+      ...makeCards(AccidentCard, 3),
+      ...makeCards(OutOfGasCard, 3),
+      ...makeCards(FlatTireCard, 3),
+      ...makeCards(StopCard, 5),
+
+      // Distance cards
+      ...makeCards(DistanceCard, 10, 25),
+      ...makeCards(DistanceCard, 10, 50),
+      ...makeCards(DistanceCard, 10, 75),
+      ...makeCards(DistanceCard, 12, 100),
+      ...makeCards(DistanceCard, 4, 200),
+
+      // Remedy cards
+      ...makeCards(RepairCard, 6),
+      ...makeCards(GasolineCard, 6),
+      ...makeCards(SpareTireCard, 6),
+      ...makeCards(RollCard, 14),
+
+    ];  
+    shuffle(this.drawPile);
+
+    // distribute cards
+    // only 1 player, so pick 6 cards for player + CPU
+    // this.players
+    this.playerHand = []
+    for(let i = 1; i <= 6; ++i) {
+      this.drawToPlayer();
+    }
+    this.cpuHand = []
+    for(let i = 1; i <= 6; ++i) {
+      this.drawToCPU();
+    }
+  }
+
+  drawToPlayer() {
+    this.playerHand.push(this.drawPile.shift());
+  }
+
+  drawToCPU() {
+    this.cpuHand.push(this.drawPile.shift());
+  }
+}
+
+class Card {
+}
+
+class DistanceCard extends Card {
+  constructor(value) {
+    super();
+    this.value = value;
+  }
+}
+
+class HazardCard extends Card {
+  constructor() {
+    super();
+  }
+}
+
+class OutOfGasCard extends HazardCard {
+  constructor() { super(); }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i'm an OOG card");
+      player.runOutOfGas();
+      return true;
+    } else {
+      console.log("i can't be applied because the player isn't going");
+      return false;
+    }
+  }
+}
+class FlatTireCard extends HazardCard {
+  constructor() { super(); }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i'm an flat tire card");
+      player.setState('flat_tired')
+      return true;
+    } else {
+      console.log("i can't be applied because the player isn't going");
+      return false;
+    }
+  }
+}
+
+class StopCard extends HazardCard {
+  constructor() { super(); }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i'm a stop card");
+      player.setState('stopped')
+      return true;
+    } else {
+      console.log("i can't be applied because the player isn't going");
+      return false;
+    }
+  }
+}
+
+class AccidentCard extends HazardCard {
+  constructor() { super(); }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i'm an accident");
+      player.setState('accidented')
+      return true;
+    } else {
+      console.log("i can't be applied because the player isn't going");
+      return false;
+    }
   }
 }
 
 
+
+class RemedyCard extends Card {
+  constructor() { super(); }
+}
+
+class RepairCard extends RemedyCard {
+  constructor() { super(); }
+
+  apply(player) {
+    if(player.isAccidented()) {
+      console.log("i can be applied, i was accidented");
+      player.setState('stopped')
+      return true;
+    } else {
+      console.log("i can't be applied because i'm not accidented");
+      return false;
+    }
+  }
+}
+
+
+let game = new Game();
+
+// game.play()
+// some how get input from me
+// apply my card
+// make other player play instantly
+//     and give focus back to me
+
+
+console.log(game);
+
+// let card = deck[0];
+
+// card.apply(player);
+// console.log("L162", player);
+
+// player.setState('going');
+// console.log("L166", player);
+
+// card.apply(player);
+// console.log(player);
+
+// card = new RepairCard();
+// card.apply(player);
+// console.log(player);
 
 
 ///////////////
 //pseudo code
 ///////////////
 
-// SETUP
-// 1/ shuffle the cards
-// 2/ give 6 cards to each player, we see both players'hand on screen
-// 3/ rest of [cards] is the draw pile
-// 3/ both player traveled 0 kmTraveled
-// 4/ rollPile, hazardPile, remedyPile, and discardPile are empty
 
 
 // // TURN IF !ROLL CARD
