@@ -9,26 +9,102 @@ class Player {
     this.state = 'stopped'; // stopped | accidented | going | out_of_gas | ...
   }
 
-  isGoing() {
-    return (this.state == 'going');
-  }
-
-  isAccidented() {
-    return (this.state == 'accidented');
-  }
-  
-  getIntoAccident() {
-    this.state = 'accidented';
-  }
-  runOutOfGas() {
-    this.state = 'out_of_gas';
-  }
-
+  // function changing the state by calling specific state functions
   setState(newState) {
     // TODO : validation of the state value
     this.state = newState;
   }
+
+  ///////////// Hazards
+
+  // function called when player receives accidentCard
+  getIntoAccident() {
+    this.state = 'accidented';
+  }
+
+  // function called when player -has- an accidentCard
+  isAccidented() {
+    return (this.state == 'accidented');
+  }
+
+  // function called when player receives outOfGasCard
+  runOutOfGas() {
+    this.state = 'out_of_gas';
+  }
+
+  // function called when player -has- an outOfGasCard
+  isOutOfGas() {
+    return (this.state == 'out_of_gas');
+  }
+
+  // function called when player receives flatTireCard
+  getFlatTire() {
+    this.state = 'flat_tire';
+  }
+
+  // function called when player -has- a flatTireCard
+  hasFlatTire() {
+    return (this.state == 'flat_tire');
+  }
+
+  // function called when player receives a stopCard
+  getStop() {
+    this.state = 'stopped';
+  }
+
+  // function called when player -has- a stopCard
+  isStopped() {
+    return (this.state == 'stopped');
+  }
+
+
+
+  ///////////// Remedies
+
+  // function called when player applies a repairCard
+  doesRepair() {
+    this.state = 'repaired';
+  }
+
+  // function called when player -had- applied a repairCard
+  isRepaired() {
+    return (this.state == 'repaired');
+  }
+
+  // function called when player applies a gasolineCard
+  giveGasoline() {
+    this.state = 'fueled';
+  }
+
+  // function called when player -had- applied a gasolineCard
+  isFueled() {
+    return (this.state == 'fueled');
+  }
+
+  // function called when player applies a spareTireCard
+  appliesSpareTire() {
+    this.state = 'new_tire';
+  }
+
+  // function called when player -had- applied a spareTireCard
+  hasSpareTire() {
+    return (this.state == 'new_tire');
+  }
+
+  // function called when player applies a rollCard
+  letsRoll() {
+    this.state = 'going';
+  }
+
+  // function called when player -has- a rollCard
+  isGoing() {
+    return (this.state == 'going');
+  }
+
+
 }
+
+
 
 class Game {
   constructor() {
@@ -47,6 +123,7 @@ class Game {
       array.sort(() => Math.random() - 0.5);
     }
 
+    // function that creates the cards
     function makeCards(typeOfCard, count, ...args) {
       let cards = [];
       for(let i = 1; i <= count; ++i) {
@@ -54,6 +131,9 @@ class Game {
       }
       return cards;
     }
+
+    // creates the array of cards using makeCards function
+    // with name of card and quantity
 
     this.drawPile = [
       // Hazard cards
@@ -76,28 +156,23 @@ class Game {
       ...makeCards(RollCard, 14),
 
     ];  
-    shuffle(this.drawPile);
 
-    // distribute cards
-    // only 1 player, so pick 6 cards for player + CPU
-    // this.players
+    // shuffles the drawPile at game init
+    shuffle(this.drawPile);
+  
+
+    // distribute 6 cards using draw functions in a loop
     this.playerHand = []
-    for(let i = 1; i <= 6; ++i) {
-      this.drawToPlayer();
+    for(let i = 1; i <= 6; i++) {
+      this.playerHand.push(this.drawPile.shift());
     }
     this.cpuHand = []
-    for(let i = 1; i <= 6; ++i) {
-      this.drawToCPU();
+    for(let i = 1; i <= 6; i++) {
+      this.cpuHand.push(this.drawPile.shift());
     }
   }
 
-  drawToPlayer() {
-    this.playerHand.push(this.drawPile.shift());
-  }
-
-  drawToCPU() {
-    this.cpuHand.push(this.drawPile.shift());
-  }
+  
 }
 
 class Card {
@@ -116,8 +191,27 @@ class HazardCard extends Card {
   }
 }
 
+class AccidentCard extends HazardCard {
+  constructor() { 
+    super(); 
+  }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i'm an accident");
+      player.getIntoAccident();
+      return true;
+    } else {
+      console.log("i can't be applied because the player isn't going");
+      return false;
+    }
+  }
+}
+
 class OutOfGasCard extends HazardCard {
-  constructor() { super(); }
+  constructor() { 
+    super(); 
+  }
 
   apply(player) {
     if(player.isGoing()) {
@@ -130,13 +224,16 @@ class OutOfGasCard extends HazardCard {
     }
   }
 }
+
 class FlatTireCard extends HazardCard {
-  constructor() { super(); }
+  constructor() { 
+    super(); 
+  }
 
   apply(player) {
     if(player.isGoing()) {
       console.log("i can be applied, i'm an flat tire card");
-      player.setState('flat_tired')
+      player.getFlatTire();
       return true;
     } else {
       console.log("i can't be applied because the player isn't going");
@@ -151,7 +248,7 @@ class StopCard extends HazardCard {
   apply(player) {
     if(player.isGoing()) {
       console.log("i can be applied, i'm a stop card");
-      player.setState('stopped')
+      player.getStop();
       return true;
     } else {
       console.log("i can't be applied because the player isn't going");
@@ -160,20 +257,7 @@ class StopCard extends HazardCard {
   }
 }
 
-class AccidentCard extends HazardCard {
-  constructor() { super(); }
 
-  apply(player) {
-    if(player.isGoing()) {
-      console.log("i can be applied, i'm an accident");
-      player.setState('accidented')
-      return true;
-    } else {
-      console.log("i can't be applied because the player isn't going");
-      return false;
-    }
-  }
-}
 
 
 
@@ -187,7 +271,7 @@ class RepairCard extends RemedyCard {
   apply(player) {
     if(player.isAccidented()) {
       console.log("i can be applied, i was accidented");
-      player.setState('stopped')
+      player.doesRepair();
       return true;
     } else {
       console.log("i can't be applied because i'm not accidented");
@@ -195,6 +279,58 @@ class RepairCard extends RemedyCard {
     }
   }
 }
+
+class GasolineCard extends RemedyCard {
+  constructor() { 
+    super(); 
+  }
+
+  apply(player) {
+    if(player.isOutOfGas()) {
+      console.log("i can be applied, i am out of gas");
+      player.giveGasoline();
+      return true;
+    } else {
+      console.log("i can't be applied because i'm not out of gas");
+      return false;
+    }
+  }
+}
+
+class SpareTireCard extends RemedyCard {
+  constructor() { 
+    super(); 
+  }
+
+  apply(player) {
+    if(player.hasFlatTire()) {
+      console.log("i can be applied, i have a flat tire");
+      player.hasSpareTire();
+      return true;
+    } else {
+      console.log("i can't be applied because i don't have a flat tire");
+      return false;
+    }
+  }
+}
+
+class RollCard extends RemedyCard {
+  constructor() { 
+    super(); 
+  }
+
+  apply(player) {
+    if(player.isStopped()) {
+      console.log("i can be applied, i am stopped");
+      player.isGoing();
+      return true;
+    } else {
+      console.log("i can't be applied because i don't have a flat tire");
+      return false;
+    }
+  }
+}
+
 
 
 let game = new Game();
