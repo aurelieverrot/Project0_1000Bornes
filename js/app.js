@@ -9,6 +9,11 @@ class Player {
     this.state = 'stopped'; // stopped | accidented | going | out_of_gas | ...
   }
 
+  // updates km traveled
+  // updatesKmTraveled(player) {
+  //   player.kmTraveled += DistanceCard.value
+  // }
+
   // function changing the state by calling specific state functions
   setState(newState) {
     // TODO : validation of the state value
@@ -174,23 +179,17 @@ class Game {
 
   
 }
-
+////////////////////
 class Card {
 }
 
-class DistanceCard extends Card {
-  constructor(value) {
-    super();
-    this.value = value;
-  }
-}
-
+////////////////////
 class HazardCard extends Card {
   constructor() {
     super();
   }
 }
-
+////////////////////
 class AccidentCard extends HazardCard {
   constructor() { 
     super(); 
@@ -258,9 +257,7 @@ class StopCard extends HazardCard {
 }
 
 
-
-
-
+//////////////////
 class RemedyCard extends Card {
   constructor() { super(); }
 }
@@ -331,9 +328,107 @@ class RollCard extends RemedyCard {
   }
 }
 
+////////////////////////////
+
+class DistanceCard extends Card {
+  constructor() { 
+    super(); 
+  }
+}
+
+class KM50 extends DistanceCard {
+  constructor() { 
+    super(); 
+    this.value = 50
+  }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i am going");
+      player.kmTraveled += this.value;
+      return true;
+    } else {
+      console.log("i can't be applied because i'm not going");
+      return false;
+    }
+  }
+}
+
+class KM75 extends DistanceCard {
+  constructor() { 
+    super(); 
+    this.value = 75
+  }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i am going");
+      player.kmTraveled += this.value;
+      return true;
+    } else {
+      console.log("i can't be applied because i'm not going");
+      return false;
+    }
+  }
+}
+
+class KM100 extends DistanceCard {
+  constructor() { 
+    super();
+    this.value = 100 
+  }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i am going");
+      player.kmTraveled += this.value;
+      return true;
+    } else {
+      console.log("i can't be applied because i'm not going");
+      return false;
+    }
+  }
+}
+
+class KM150 extends DistanceCard {
+  constructor() { 
+    super(); 
+    this.value = 150
+  }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i am going");
+      player.kmTraveled += this.value;
+      return true;
+    } else {
+      console.log("i can't be applied because i'm not going");
+      return false;
+    }
+  }
+}
+
+class KM200 extends DistanceCard {
+  constructor() { 
+    super(); 
+    this.value = 200
+  }
+
+  apply(player) {
+    if(player.isGoing()) {
+      console.log("i can be applied, i am going");
+      player.kmTraveled += this.value;
+      return true;
+    } else {
+      console.log("i can't be applied because i'm not going");
+      return false;
+    }
+  }
+}
 
 
 let game = new Game();
+
 
 // game.play()
 // some how get input from me
@@ -343,6 +438,8 @@ let game = new Game();
 
 
 console.log(game);
+
+
 
 // let card = deck[0];
 
