@@ -1,18 +1,26 @@
 //////// PROJECT 0: 1000 bornes //////////
 
+// stolen from https://javascript.info/task/shuffle
+function shuffle(array) {
+  array.sort(() => Math.random() - 0.5);
+}
+
+// function that creates the cards
+function makeCards(typeOfCard, count, ...args) {
+  let cards = [];
+  for(let i = 1; i <= count; ++i) {
+    cards.push(new typeOfCard(...args));
+  }
+  return cards;
+}
+
 class Player {
-  constructor(name) {
+  constructor(name, hand) {
     this.name = name;
-    // this.cardsInHand = [];
-    // this.playedPile = [];
+    this.hand = hand;
     this.kmTraveled = 0;
     this.state = 'stopped'; // stopped | accidented | going | out_of_gas | ...
   }
-
-  // updates km traveled
-  // updatesKmTraveled(player) {
-  //   player.kmTraveled += DistanceCard.value
-  // }
 
   // function changing the state by calling specific state functions
   setState(newState) {
@@ -20,7 +28,7 @@ class Player {
     this.state = newState;
   }
 
-  ///////////// Hazards
+  ///////////// Hazards events
 
   // function called when player receives accidentCard
   getIntoAccident() {
@@ -64,7 +72,7 @@ class Player {
 
 
 
-  ///////////// Remedies
+  ///////////// Remedies events
 
   // function called when player applies a repairCard
   doesRepair() {
@@ -106,40 +114,76 @@ class Player {
     return (this.state == 'going');
   }
 
+  travel(kms) {
+    this.kmTraveled += kms;
+    return this.kmTraveled;
+  }
 
+  // return player if card played successfuly
+  // or return false if not
+  play(cardIndex) {
+    // some sanity check
+    if(cardIndex < 0 || cardIndex >= this.hand.length) {
+      // throw new Error("Can't play that card")
+      console.log(`bad index bro ${cardIndex}.`)
+      return false;
+    }
+
+    let card = this.hand[cardIndex];
+
+    console.log(`player ${this.name} playing card`, card);
+
+    if (card.apply(this)) {
+      // applied successfully, let's remove it from their hand
+      // take card at index
+      this.hand.splice(cardIndex,1);
+
+      return this;
+    } else {
+      // we fucked it up
+      return false;
+    }
+  }
 }
 
 
 
 class Game {
   constructor() {
+    this.resetGame();
+  }
+
+  resetGame() {  
     // INIT
     // 1/ shuffle the cards
+    this.resetDrawPile();
     // 2/ give 6 cards to each player, we see both players'hand on screen
     // 3/ rest of [cards] is the draw pile
+
+    this.initialDraw();
+
     // 3/ both player traveled 0 kmTraveled
+    this.player = new Player("Alice", this.playerHand);
+    this.cpu    = new Player("CPU", this.cpuHand);
+
     // 4/ rollPile, hazardPile, remedyPile, and discardPile are empty
-
     this.discardPile = [];
-    this.turns = 0;
-  
-    // stolen from https://javascript.info/task/shuffle
-    function shuffle(array) {
-      array.sort(() => Math.random() - 0.5);
+  }
+
+  initialDraw() {
+    // draw cards
+    //  => distribute 6 cards using draw functions in a loop
+    this.playerHand = []
+    for(let i = 1; i <= 6; i++) {
+      this.draw(this.playerHand);
     }
-
-    // function that creates the cards
-    function makeCards(typeOfCard, count, ...args) {
-      let cards = [];
-      for(let i = 1; i <= count; ++i) {
-        cards.push(new typeOfCard(...args));
-      }
-      return cards;
+    this.cpuHand = []
+    for(let i = 1; i <= 6; i++) {
+      this.draw(this.cpuHand);
     }
+  }
 
-    // creates the array of cards using makeCards function
-    // with name of card and quantity
-
+  resetDrawPile() {
     this.drawPile = [
       // Hazard cards
       ...makeCards(AccidentCard, 3),
@@ -164,23 +208,36 @@ class Game {
 
     // shuffles the drawPile at game init
     shuffle(this.drawPile);
-  
-
-    // distribute 6 cards using draw functions in a loop
-    this.playerHand = []
-    for(let i = 1; i <= 6; i++) {
-      this.playerHand.push(this.drawPile.shift());
-    }
-    this.cpuHand = []
-    for(let i = 1; i <= 6; i++) {
-      this.cpuHand.push(this.drawPile.shift());
-    }
   }
 
+
+  draw(hand) {
+    hand.push(this.drawPile.pop());
+  }
+
+
+  
+  throwAndDraw(player) {
+    // throw first one, don't care about optimizing which card to throw
+    let discardedCard = player.hand.pop();
+    console.log("\tdiscarding", discardedCard);
+    this.discardPile.push(discardedCard);
+    console.log(`\tnow discard pile`, this.discardPile)
+
+    // draw one card
+    this.draw(player.hand);
+  }
   
 }
 ////////////////////
 class Card {
+  // apply
+  //   returns true if card can be applied
+  //   returns false when the card isn't valid
+  //     (because the state of the player doesn't allow playing this type of card)
+  apply(player) {
+    throw new Error('You have to implement this when you implement a new type of card'); 
+  }
 }
 
 ////////////////////
@@ -319,7 +376,7 @@ class RollCard extends RemedyCard {
   apply(player) {
     if(player.isStopped()) {
       console.log("i can be applied, i am stopped");
-      player.isGoing();
+      player.letsRoll();
       return true;
     } else {
       console.log("i can't be applied because i don't have a flat tire");
@@ -331,21 +388,16 @@ class RollCard extends RemedyCard {
 ////////////////////////////
 
 class DistanceCard extends Card {
-  constructor() { 
+  constructor(kms) { 
     super(); 
-  }
-}
-
-class KM50 extends DistanceCard {
-  constructor() { 
-    super(); 
-    this.value = 50
+    this.kms = kms;
   }
 
   apply(player) {
     if(player.isGoing()) {
       console.log("i can be applied, i am going");
-      player.kmTraveled += this.value;
+      // if card can be applied, km traveled is updated
+      player.travel(this.kms);
       return true;
     } else {
       console.log("i can't be applied because i'm not going");
@@ -354,81 +406,42 @@ class KM50 extends DistanceCard {
   }
 }
 
-class KM75 extends DistanceCard {
-  constructor() { 
-    super(); 
-    this.value = 75
-  }
-
-  apply(player) {
-    if(player.isGoing()) {
-      console.log("i can be applied, i am going");
-      player.kmTraveled += this.value;
+function autoPlay(game, player) {
+  // make the CPU iterate over its cards until one can be played (apply doesn't return false)
+  let cards = player.hand;
+  for (const [cardIndex, card] in cards) {
+    console.log("hey", cardIndex);
+    if (player.play(cardIndex)) {
+      console.log(`${player.name} played successfully`)
       return true;
+      // played success
     } else {
-      console.log("i can't be applied because i'm not going");
-      return false;
+      console.log(`\t[${player.name}] iterating to another card because i couldn't play that one`)
+      // let's continue playing other cards
     }
   }
-}
-
-class KM100 extends DistanceCard {
-  constructor() { 
-    super();
-    this.value = 100 
-  }
-
-  apply(player) {
-    if(player.isGoing()) {
-      console.log("i can be applied, i am going");
-      player.kmTraveled += this.value;
-      return true;
-    } else {
-      console.log("i can't be applied because i'm not going");
-      return false;
-    }
-  }
-}
-
-class KM150 extends DistanceCard {
-  constructor() { 
-    super(); 
-    this.value = 150
-  }
-
-  apply(player) {
-    if(player.isGoing()) {
-      console.log("i can be applied, i am going");
-      player.kmTraveled += this.value;
-      return true;
-    } else {
-      console.log("i can't be applied because i'm not going");
-      return false;
-    }
-  }
-}
-
-class KM200 extends DistanceCard {
-  constructor() { 
-    super(); 
-    this.value = 200
-  }
-
-  apply(player) {
-    if(player.isGoing()) {
-      console.log("i can be applied, i am going");
-      player.kmTraveled += this.value;
-      return true;
-    } else {
-      console.log("i can't be applied because i'm not going");
-      return false;
-    }
-  }
+  game.throwAndDraw(player);
+  return false; // couldn't find any card working, we should have returned true above
 }
 
 
 let game = new Game();
+// console.log(game.player);
+// console.log(game.cpu);
 
+// player.play(0);
+console.log("begin autoplay");
+
+for(let i = 0; i <10; ++i) {
+  console.log("================= TURN", i)
+  autoPlay(game, game.player);
+  autoPlay(game, game.cpu);
+}
+console.log("after autoplay");
+
+// console.log(game.player);
+// console.log(game.cpu);
+console.log(game);
 
 // game.play()
 // some how get input from me
@@ -436,8 +449,6 @@ let game = new Game();
 // make other player play instantly
 //     and give focus back to me
 
-
-console.log(game);
 
 
 
