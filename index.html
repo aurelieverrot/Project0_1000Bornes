@@ -6,11 +6,82 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
   <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css?family=Share&display=swap" rel="stylesheet">
+
   <script defer src="js/app.js"></script>
 
   <title>1000 Bornes - The Game</title>
 </head>
 <body>
+  <h1><span id='blue'>1000 Bornes</span> - <span id='red'>The Game</span></h1>
+  <button id='start'>Start New Game</button>
+
+  <main>
+    <div class='playerBoard'>
+      <h2>PLAYER SIDE</h2>
+      <ul>
+        <li class='playerHand'>card1</li>
+        <li class='playerHand'>card2</li>
+        <li class='playerHand'>card3</li>
+        <li class='playerHand'>card4</li>
+        <li class='playerHand'>card5</li>
+        <li class='playerHand'>card6</li>
+        <li class='playerHand'>card7</li>
+      </ul>
+      <div class='activeBoard'>
+          <div id='travel'>
+              <p>You traveled</p>
+              <p id='playerKM'>100</p>
+          </div>
+          <div class='active' id='playerHazard'>card hazard</div>
+          <div class='active' id='playerRemedy'>card remedy</div>
+      </div>
+      <ul>
+        <li id='player50'>card 50</li>
+        <li id='player75'>card 75</li>
+        <li id='player100'>card 100</li>
+        <li id='player150'>card 150</li>
+        <li id='player200'>card 200</li>
+      </ul>
+
+    </div>
+
+
+    <div class='cpuBoard'>
+        <h2>CPU SIDE</h2>
+      <ul>
+        <li class='cpuHand'>card1</li>
+        <li class='cpuHand'>card2</li>
+        <li class='cpuHand'>card3</li>
+        <li class='cpuHand'>card4</li>
+        <li class='cpuHand'>card5</li>
+        <li class='cpuHand'>card6</li>
+        <li class='cpuHand'>card7</li>
+      </ul>
+      <div class='activeBoard'>
+          <div id='travel'>
+              <p>CPU traveled</p>
+              <p id='cpuKM'>100</p>
+          </div>
+          <div class='active' id='cpuHazard'>card hazard</div>
+          <div class='active' id='cpuRemedy'>card remedy</div>
+      </div>
+      <ul>
+          <li id='cpu50'>card 50</li>
+          <li id='cpu75'>card 75</li>
+          <li id='cpu100'>card 100</li>
+          <li id='cpu150'>card 150</li>
+          <li id='cpu200'>card 200</li>
+        </ul>
+
+    </div>
+
+
+
+  </main>
+
+  <button>Draw Card</button>
+  <button>Discard Card</button>
   
 </body>
 </html>
