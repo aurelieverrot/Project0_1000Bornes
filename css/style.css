@@ -98,22 +98,12 @@ h2 {
 }
 
 main {
-  display: flex;
-  flex-direction: row;
+  border: 3px solid darkgrey;
+  padding: 10px 20px;
+  background-color: rgba(255,255,255,0.9);
+  margin: 20px;
 }
 
-.playerBoard {
-  border-top: 3px solid darkgrey;
-  border-bottom: 3px solid darkgrey;
-  border-right: 5px dashed darkgrey;
-  padding: 10px 20px;
-}
-
-.cpuBoard {
-  border-top: 3px solid darkgrey;
-  border-bottom: 3px solid darkgrey;
-  padding: 10px 20px;
-}
 
 button {
   font-family: var(--font-family);
@@ -126,13 +116,25 @@ button {
   border-radius: 5px;
   background: white;
   box-shadow: 4px 6px #aaaaaa;
-  
+  width: 200px;
+}
+
+button:hover {
+  box-shadow: 6px 8px #aaaaaa;
 }
 
 #start {
     margin: 0 auto;
     display: block;
 }
+
+#actionBtn {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+
 
 .activeBoard {
   display: flex;
@@ -154,10 +156,10 @@ li {
   background-color: rgba(255,255,255,0.7);
 }
 
-#travel {
+#travelPlayer, #travelCPU {
   border: 2px solid black;
   margin: 15px 20px;
-  width: 50%;
+  width: 20%;
   height: 90px;
   font-family: var(--font-family);
   background-color: white;
@@ -178,4 +180,7 @@ div p {
 
 #playerKM, #cpuKM {
   font-size: 45px;
+}
+
+.playerHand {
 }

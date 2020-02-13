@@ -6,12 +6,16 @@
 
 // player's hand
 // let ulElPlayerHand = document.getElementById('ulplayerHand');
-// let lilElPlayerHand = document.createElement('li');
+// let lilElPlayerHand = document.getElementById('li');
 
 // buttons
-let btnElStart = document.getElementById('start');
-let btnElDraw = document.getElementById('draw');
+let btnElStart   = document.getElementById('start');
+let btnElPlay    = document.getElementById('play');
 let btnElDiscard = document.getElementById('discard');
+let txtElPlayerKMTraveled = document.getElementById('playerKM');
+let txtElCPUKMTraveled = document.getElementById('cpuKM');
+let spanElPlayerState = document.getElementById('playerState');
+let spanElCPUState = document.getElementById('cpuState');
 
 // cards in hand
 let playerCardsEl = document.querySelectorAll('.playerHand');
@@ -22,29 +26,9 @@ let playerCardsEl = document.querySelectorAll('.playerHand');
 let game;
 
 
+function displayCard(card) {
 
-/////////////////////////////
-// Images
-let  imgStop = "url('./images/stop.png')";
-     imgFlatTire = "url('./images/flat_tire.png')";
-     imgAccident = "url('./images/accident.png')";
-     imgGasoline = "url('./images/gasoline.png')";
-     imgKm25 = "url('./images/km25.png')";
-     imgKm50 = "url('./images/km50.png')";
-     imgKm75 = "url('./images/km75.png')";
-     imgKm100 = "url('./images/km100.png')";
-     imgKm150 = "url('./images/km150.png')";
-     imgKm200 = "url('./images/km200.png')";
-     imgRoll = "url('./images/roll.png')";
-     imgSpareTire = "url('./images/spare_tire.png')";
-     imgRepairs = "url('./images/repairs.png')";
-     imgOutOfGas = "url('./images/out_of_gas.png')";
-
-
-
-
-
-
+}
 
 ///////////////////////////////////////////
 
@@ -63,9 +47,9 @@ function makeCards(typeOfCard, count, ...args) {
 }
 
 class Player {
-  constructor(name, hand) {
+  constructor(name) {
     this.name = name;
-    this.hand = hand;
+    this.hand = [];
     this.kmTraveled = 0;
     this.state = 'stopped'; // stopped | accidented | going | out_of_gas | ...
   }
@@ -124,32 +108,17 @@ class Player {
 
   // function called when player applies a repairCard
   doesRepair() {
-    this.state = 'repaired';
-  }
-
-  // function called when player -had- applied a repairCard
-  isRepaired() {
-    return (this.state == 'repaired');
+    this.state = 'stopped';
   }
 
   // function called when player applies a gasolineCard
   giveGasoline() {
-    this.state = 'fueled';
-  }
-
-  // function called when player -had- applied a gasolineCard
-  isFueled() {
-    return (this.state == 'fueled');
+    this.state = 'stopped';
   }
 
   // function called when player applies a spareTireCard
   appliesSpareTire() {
-    this.state = 'new_tire';
-  }
-
-  // function called when player -had- applied a spareTireCard
-  hasSpareTire() {
-    return (this.state == 'new_tire');
+    this.state = 'stopped';
   }
 
   // function called when player applies a rollCard
@@ -208,26 +177,23 @@ class Game {
     // 2/ give 6 cards to each player, we see both players'hand on screen
     // 3/ rest of [cards] is the draw pile
 
-    this.initialDraw();
-
     // 3/ both player traveled 0 kmTraveled
-    this.player = new Player("Alice", this.playerHand);
-    this.cpu    = new Player("CPU", this.cpuHand);
+    this.player = new Player("Alice");
+    this.cpu    = new Player("CPU");
+    
+    this.initialDraw(this.player);
+    this.initialDraw(this.cpu);
+
 
     // 4/ rollPile, hazardPile, remedyPile, and discardPile are empty
     this.discardPile = [];
   }
 
-  initialDraw() {
+  initialDraw(player) {
     // draw cards
     //  => distribute 6 cards using draw functions in a loop
-    this.playerHand = []
     for(let i = 1; i <= 6; i++) {
-      this.draw(this.playerHand);
-    }
-    this.cpuHand = []
-    for(let i = 1; i <= 6; i++) {
-      this.draw(this.cpuHand);
+      this.draw(player.hand);
     }
   }
 
@@ -260,20 +226,15 @@ class Game {
 
 
   draw(hand) {
-    hand.unshift(this.drawPile.pop());
+    hand.push(this.drawPile.pop());
   }
   
-  throwAndDraw(player) {
-    // first pick a card from drawPile
-    this.draw(player.hand);
-
-    // throw first one, don't care about optimizing which card to throw
-    let discardedCard = player.hand.pop();
-    console.log("\tdiscarding", discardedCard);
-    this.discardPile.push(discardedCard);
-    console.log(`\tnow discard pile`, this.discardPile)
-
-    
+  throwRandomCard(player) {
+    // // throw first one, don't care about optimizing which card to throw
+    // let discardedCard = player.hand.shift();
+    // console.log("\tdiscarding", discardedCard);
+    // this.discardPile.push(discardedCard);
+    // console.log(`\tnow discard pile`, this.discardPile)
   }
   
 }
@@ -284,6 +245,10 @@ class Card {
   //   returns false when the card isn't valid
   //     (because the state of the player doesn't allow playing this type of card)
   apply(player) {
+    throw new Error('You have to implement this when you implement a new type of card'); 
+  }
+
+  getImage() {
     throw new Error('You have to implement this when you implement a new type of card'); 
   }
 }
@@ -298,6 +263,10 @@ class HazardCard extends Card {
 class AccidentCard extends HazardCard {
   constructor() { 
     super(); 
+  }
+
+  getImage() {
+    return `url('./images/accident.png')`;
   }
 
   apply(player) {
@@ -317,6 +286,10 @@ class OutOfGasCard extends HazardCard {
     super(); 
   }
 
+  getImage() {
+    return `url('./images/out_of_gas.png')`;
+  }
+
   apply(player) {
     if(player.isGoing()) {
       console.log("i can be applied, i'm an OOG card");
@@ -334,6 +307,10 @@ class FlatTireCard extends HazardCard {
     super(); 
   }
 
+  getImage() {
+    return `url('./images/flat_tire.png')`;
+  }
+
   apply(player) {
     if(player.isGoing()) {
       console.log("i can be applied, i'm an flat tire card");
@@ -348,6 +325,10 @@ class FlatTireCard extends HazardCard {
 
 class StopCard extends HazardCard {
   constructor() { super(); }
+
+  getImage() {
+    return `url('./images/stop.png')`;
+  }
 
   apply(player) {
     if(player.isGoing()) {
@@ -370,6 +351,10 @@ class RemedyCard extends Card {
 class RepairCard extends RemedyCard {
   constructor() { super(); }
 
+  getImage() {
+    return `url('./images/repairs.png')`;
+  }
+
   apply(player) {
     if(player.isAccidented()) {
       console.log("i can be applied, i was accidented");
@@ -385,6 +370,10 @@ class RepairCard extends RemedyCard {
 class GasolineCard extends RemedyCard {
   constructor() { 
     super(); 
+  }
+
+  getImage() {
+    return `url('./images/gasoline.png')`;
   }
 
   apply(player) {
@@ -404,6 +393,10 @@ class SpareTireCard extends RemedyCard {
     super(); 
   }
 
+  getImage() {
+    return `url('./images/spare_tire.png')`;
+  }
+
   apply(player) {
     if(player.hasFlatTire()) {
       console.log("i can be applied, i have a flat tire");
@@ -419,6 +412,10 @@ class SpareTireCard extends RemedyCard {
 class RollCard extends RemedyCard {
   constructor() { 
     super(); 
+  }
+  
+  getImage() {
+    return `url('./images/roll.png')`;
   }
 
   apply(player) {
@@ -441,6 +438,10 @@ class DistanceCard extends Card {
     this.kms = kms;
   }
 
+  getImage() {
+    return `url('./images/km${this.kms}.png')`;
+  }
+
   apply(player) {
     if(player.isGoing()) {
       console.log("i can be applied, i am going");
@@ -459,66 +460,134 @@ class DistanceCard extends Card {
 //////////////////////////////////////////////////////////////////
 // function autoplay for the CPU
 function autoPlay(game, cpu) {
+  // first let's pick a 7th card...
+  window.game.draw(cpu.hand);
+
   // make the CPU iterate over its cards until one can be played (apply doesn't return false)
   let cards = cpu.hand;
+  let playedCard = false;
   for (const [cardIndex, card] in cards) {
     console.log("hey", cardIndex);
     if (cpu.play(cardIndex) == true) {
       console.log(`${cpu.name} played successfully`)
-      return playTurn();
+      playedCard = true;
+      break;
       // played success
     } else {
       console.log(`\t[${cpu.name}] iterating to another card because i couldn't play that one`)
       // let's continue playing other cards
     }
   }
-  game.throwAndDraw();
-  return false; // couldn't find any card working, we should have returned true above
+
+  if (playedCard) {
+    return true;
+  } else {    
+    game.throwRandomCard(cpu);
+    return false; // couldn't find any card working, we should have returned true above
+  }
 }
 
 
 // functions for the player using UI to play
 function startGame() {
-  game = new Game();
+  window.game = new Game();
   console.log("game initialized");
 
-  for (i = 0; i < playerCardsEl.length -1 ; i++) {
-    console.log(game.player.hand[i].constructor.name);
-    playerCardsEl[i].style.background = "url('./images/km25.png')";
-    playerCardsEl[i].innerText = '';
-  }
+  refreshDisplay();
+  setupTurnForPlayer();
 }
 
-function playTurn() {
-  if (startGame == true) {
-    // 1 Draw a card from draw pile
-    playerHand = draw();
-    // 2 Show that card in the players' hand (it will be the 7th card)
-    //      liElPlayerHand.appendChild('liElPlayerhand'); 
-    // 3 Select the card to play
-    //lilElPlayerHand.addEventListener('click', )
-    // if card is played && card CAN be applied => let cpu play
-    if (apply(card) == true) {
-      discardPile.push(card);
-      return autoPlay();
-    } else if (apply(card) == false) {
-    // if card is played && card !CAN be applied => 
-      alert('Please, play an other card.');
-    } else if (discard(card)) {
-    // if card is discarded => let cpu play 
-      discardPile.push(card);
-      return autoPlay();
-    }    
-    
-  } else {
-    alert('Please, start a New Game.');
+// just don't start with anything selected
+window.selectedCard = undefined;
+
+function toggleSelectedCard(targetEl) {
+  let el = targetEl.target;
+
+  // if a card has already been selected, selectCard is NOT undefined
+  if (window.selectedCard != undefined) {
+    window.selectedCard.style.border = "2px solid black";  
   }
+
+  window.selectedCard = el;
+  el.style.border = "2px dashed black";
+  console.log("card selected", window.selectedCard);
+}
+
+function refreshDisplay() {
+  for (let i = 0; i < playerCardsEl.length; i++) {
+    let card = window.game.player.hand[i];
+
+    if (card) { // if we only have 6 cards... because seems like it's useful to model that somehow... i dont know man
+      console.log(card.constructor.name);
+      playerCardsEl[i].style.background = card.getImage();
+      playerCardsEl[i].innerText = '';
+      playerCardsEl[i].setAttribute('card-index', i.toString());
+      playerCardsEl[i].removeEventListener('click', toggleSelectedCard);
+      playerCardsEl[i].addEventListener('click', toggleSelectedCard);
+    }
+  }
+
+  txtElPlayerKMTraveled.innerText = `${window.game.player.kmTraveled} kms`;
+  txtElCPUKMTraveled.innerText = `${window.game.cpu.kmTraveled} kms`;
+  spanElPlayerState.innerText = window.game.player.state;
+  spanElCPUState.innerText = window.game.cpu.state;
+}
+
+
+function setupTurnForPlayer() {
+  let player = window.game.player;
+  window.game.draw(player.hand);
+  refreshDisplay();
+}
+
+
+function playTurn() {
+  console.log("playing selected card", window.selectedCard);
+
+  if(window.selectedCard == undefined) {
+    alert("Please first select a card");
+    return;
+  }
+
+  let cardIndex = window.selectedCard.getAttribute('card-index');
+  let actualCard = window.game.player.hand[cardIndex];
+  console.log(actualCard);
+
+  let result = window.game.player.play(cardIndex);
+  console.log(result);
+  
+  autoPlay(window.game, window.game.cpu);
+
+  setupTurnForPlayer();
+  // if (startGame == true) {
+  //   // 1 Draw a card from draw pile
+   
+  //   // 2 Show that card in the players' hand (it will be the 7th card)
+  //   //      liElPlayerHand.appendChild('liElPlayerhand'); 
+  //   // 3 Select the card to play
+  //   //lilElPlayerHand.addEventListener('click', )
+  //   // if card is played && card CAN be applied => let cpu play
+  //   if (apply(card) == true) {
+  //     discardPile.push(card);
+  //     return autoPlay();
+  //   } else if (apply(card) == false) {
+  //   // if card is played && card !CAN be applied => 
+  //     alert('Please, play an other card.');
+  //   } else if (discard(card)) {
+  //   // if card is discarded => let cpu play 
+  //     discardPile.push(card);
+  //     return autoPlay();
+  //   }    
+    
+  // } else {
+  //   alert('Please, start a New Game.');
+  // }
 }
 
 
 
 btnElStart.addEventListener('click', startGame);
-btnElDraw.addEventListener('click', draw);
+btnElPlay.addEventListener('click', playTurn);
 // btnElDiscard.addEventListener('click', );
 
 //idElPlayerKm.innerText = `${Player.kmTraveled}`;

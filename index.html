@@ -17,7 +17,7 @@
   <button id='start'>Start New Game</button>
 
   <main class='playerBoard'>
-      <h2>PLAYER SIDE</h2>
+      <h2>PLAYER'S BOARD (state: <span id="playerState"></span>)</h2>
       <ul id='ulplayerHand'>
         <li class='playerHand'>card1</li>
         <li class='playerHand'>card2</li>
@@ -28,61 +28,29 @@
         <li class='playerHand'>card7</li>
       </ul>
       <div class='activeBoard'>
-          <div id='travel'>
+          <div id='travelPlayer'>
               <p>You traveled</p>
-              <p id='playerKM'>100 km</p>
+              <p id='playerKM'>0 km</p>
+          </div>
+          <div id='travelCPU'>
+              <p>CPU traveled</p>
+              <p id='cpuKM'>0 km</p>
           </div>
           <div class='active' id='playerHazard'>card hazard</div>
           <div class='active' id='playerRemedy'>card remedy</div>
       </div>
-      <!--
-      <ul>
-        <li id='player50'>card 50</li>
-        <li id='player75'>card 75</li>
-        <li id='player100'>card 100</li>
-        <li id='player150'>card 150</li>
-        <li id='player200'>card 200</li>
-      </ul> 
-    -->
-
     </div>
-
-<!---
-    <div class='cpuBoard'>
-        <h2>CPU SIDE</h2>
-      <ul>
-        <li class='cpuHand'>card1</li>
-        <li class='cpuHand'>card2</li>
-        <li class='cpuHand'>card3</li>
-        <li class='cpuHand'>card4</li>
-        <li class='cpuHand'>card5</li>
-        <li class='cpuHand'>card6</li>
-        <li class='cpuHand'>card7</li>
-      </ul>
-      <div class='activeBoard'>
-          <div id='travel'>
-              <p>CPU traveled</p>
-              <p id='cpuKM'>100 km</p>
-          </div>
-          <div class='active' id='cpuHazard'>card hazard</div>
-          <div class='active' id='cpuRemedy'>card remedy</div>
-      </div>
-      <ul>
-          <li id='cpu50'>card 50</li>
-          <li id='cpu75'>card 75</li>
-          <li id='cpu100'>card 100</li>
-          <li id='cpu150'>card 150</li>
-          <li id='cpu200'>card 200</li>
-        </ul>
-
+    
+    <div id='actionBtn'>
+      <button id='play'>Play Card</button>
+      <button id='discard'>Discard Card</button>
     </div>
+    <h2>CPU (state: <span id="cpuState"></span>)</h2>
 
-  -->
 
   </main>
 
-  <button id='draw'>Draw Card</button>
-  <button id='discard'>Discard Card</button>
+ 
   
 </body>
 </html>
