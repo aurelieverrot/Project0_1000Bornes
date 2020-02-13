@@ -1,25 +1,20 @@
 //////// PROJECT 0: 1000 bornes //////////
 
 ///////////////////////////////////////////
-//let idElPlayerKm = document.getElementById('playerKM');
-//let idElCpuKm = document.getElementById('cpuKM');
 
-// player's hand
-// let ulElPlayerHand = document.getElementById('ulplayerHand');
-// let lilElPlayerHand = document.getElementById('li');
 
-// buttons
+// DOM variables
 let btnElStart   = document.getElementById('start');
 let btnElPlay    = document.getElementById('play');
 let btnElDiscard = document.getElementById('discard');
+
 let txtElPlayerKMTraveled = document.getElementById('playerKM');
-let txtElCPUKMTraveled = document.getElementById('cpuKM');
+let txtElCPUKMTraveled    = document.getElementById('cpuKM');
+
 let spanElPlayerState = document.getElementById('playerState');
-let spanElCPUState = document.getElementById('cpuState');
+let spanElCPUState    = document.getElementById('cpuState');
 
-// cards in hand
 let playerCardsEl = document.querySelectorAll('.playerHand');
-
 
 
 // placeholder for new game
@@ -46,12 +41,14 @@ function makeCards(typeOfCard, count, ...args) {
   return cards;
 }
 
+
+//////// PLAYER CLASS : set name, hand, km/miles traveled, state of the car depending on card applied
 class Player {
   constructor(name) {
     this.name = name;
     this.hand = [];
     this.kmTraveled = 0;
-    this.state = 'stopped'; // stopped | accidented | going | out_of_gas | ...
+    this.state = 'Stopped'; // stopped | accidented | going | out_of_gas | ...
   }
 
   // function changing the state by calling specific state functions
@@ -60,104 +57,102 @@ class Player {
     this.state = newState;
   }
 
-  ///////////// Hazards events
+  //// Hazards events
 
   // function called when player receives accidentCard
   getIntoAccident() {
-    this.state = 'accidented';
+    this.state = 'Accidented';
   }
 
   // function called when player -has- an accidentCard
   isAccidented() {
-    return (this.state == 'accidented');
+    return (this.state == 'Accidented');
   }
 
   // function called when player receives outOfGasCard
   runOutOfGas() {
-    this.state = 'out_of_gas';
+    this.state = 'Out of Gas';
   }
 
   // function called when player -has- an outOfGasCard
   isOutOfGas() {
-    return (this.state == 'out_of_gas');
+    return (this.state == 'Out of Gas');
   }
 
   // function called when player receives flatTireCard
   getFlatTire() {
-    this.state = 'flat_tire';
+    this.state = 'Flat Tire';
   }
 
   // function called when player -has- a flatTireCard
   hasFlatTire() {
-    return (this.state == 'flat_tire');
+    return (this.state == 'Flat Tire');
   }
 
   // function called when player receives a stopCard
   getStop() {
-    this.state = 'stopped';
+    this.state = 'Stopped';
   }
 
   // function called when player -has- a stopCard
   isStopped() {
-    return (this.state == 'stopped');
+    return (this.state == 'Stopped');
   }
 
 
 
-  ///////////// Remedies events
+  ///// Remedies events
 
   // function called when player applies a repairCard
   doesRepair() {
-    this.state = 'stopped';
+    this.state = 'Stopped';
   }
 
   // function called when player applies a gasolineCard
   giveGasoline() {
-    this.state = 'stopped';
+    this.state = 'Stopped';
   }
 
   // function called when player applies a spareTireCard
-  appliesSpareTire() {
-    this.state = 'stopped';
+  hasSpareTire() {
+    this.state = 'Stopped';
   }
 
   // function called when player applies a rollCard
   letsRoll() {
-    this.state = 'going';
+    this.state = 'Going';
   }
 
   // function called when player -has- a rollCard
   isGoing() {
-    return (this.state == 'going');
+    return (this.state == 'Going');
   }
 
   travel(kms) {
     this.kmTraveled += kms;
+    if (this.kmTraveled >= 1000) {
+      alert(`${this.name} won the game!`);
+    }
     return this.kmTraveled;
   }
 
   // return player if card played successfuly
   // or return false if not
   play(cardIndex) {
-    // some sanity check
-    if(cardIndex < 0 || cardIndex >= this.hand.length) {
-      // throw new Error("Can't play that card")
-      console.log(`bad index bro ${cardIndex}.`)
+    if(cardIndex < 0 || cardIndex >= this.hand.length) { // throw new Error("Can't play that card")
+      //console.log(`bad index ${cardIndex}.`)
       return false;
     }
 
     let card = this.hand[cardIndex];
 
-    console.log(`player ${this.name} playing card`, card);
+    //console.log(`player ${this.name} playing card`, card);
 
     if (card.apply(this)) {
-      // applied successfully, let's remove it from their hand
-      // take card at index
+      // applied successfully, let's remove it from their hand take card at index
       this.hand.splice(cardIndex,1);
-
       return this;
     } else {
-      // we fucked it up
       return false;
     }
   }
@@ -171,22 +166,19 @@ class Game {
   }
 
   resetGame() {  
-    // INIT
-    // 1/ shuffle the cards
+    // shuffle the cards at setup
     this.resetDrawPile();
-    // 2/ give 6 cards to each player, we see both players'hand on screen
-    // 3/ rest of [cards] is the draw pile
-
-    // 3/ both player traveled 0 kmTraveled
-    this.player = new Player("Alice");
+  
+    this.player = new Player("Aaron");
     this.cpu    = new Player("CPU");
     
+    // give cards in player's hand
     this.initialDraw(this.player);
     this.initialDraw(this.cpu);
 
 
     // 4/ rollPile, hazardPile, remedyPile, and discardPile are empty
-    this.discardPile = [];
+    //this.discardPile = [];
   }
 
   initialDraw(player) {
@@ -276,6 +268,7 @@ class AccidentCard extends HazardCard {
       return true;
     } else {
       console.log("i can't be applied because the player isn't going");
+      alert(`Sorry, you can't play this card!`);
       return false;
     }
   }
@@ -460,14 +453,14 @@ class DistanceCard extends Card {
 //////////////////////////////////////////////////////////////////
 // function autoplay for the CPU
 function autoPlay(game, cpu) {
-  // first let's pick a 7th card...
+  // pick a 7th card
   window.game.draw(cpu.hand);
 
-  // make the CPU iterate over its cards until one can be played (apply doesn't return false)
+  // make the CPU iterate over its cards until one can be played (=> apply doesn't return false)
   let cards = cpu.hand;
   let playedCard = false;
   for (const [cardIndex, card] in cards) {
-    console.log("hey", cardIndex);
+    //console.log("hey", cardIndex);
     if (cpu.play(cardIndex) == true) {
       console.log(`${cpu.name} played successfully`)
       playedCard = true;
@@ -497,7 +490,7 @@ function startGame() {
   setupTurnForPlayer();
 }
 
-// just don't start with anything selected
+// we start with nothing selected
 window.selectedCard = undefined;
 
 function toggleSelectedCard(targetEl) {
@@ -510,7 +503,7 @@ function toggleSelectedCard(targetEl) {
 
   window.selectedCard = el;
   el.style.border = "2px dashed black";
-  console.log("card selected", window.selectedCard);
+  //console.log("card selected", window.selectedCard);
 }
 
 function refreshDisplay() {
@@ -518,7 +511,7 @@ function refreshDisplay() {
     let card = window.game.player.hand[i];
 
     if (card) { // if we only have 6 cards... because seems like it's useful to model that somehow... i dont know man
-      console.log(card.constructor.name);
+      //console.log(card.constructor.name);
       playerCardsEl[i].style.background = card.getImage();
       playerCardsEl[i].innerText = '';
       playerCardsEl[i].setAttribute('card-index', i.toString());
@@ -527,23 +520,24 @@ function refreshDisplay() {
     }
   }
 
-  txtElPlayerKMTraveled.innerText = `${window.game.player.kmTraveled} kms`;
-  txtElCPUKMTraveled.innerText = `${window.game.cpu.kmTraveled} kms`;
+  txtElPlayerKMTraveled.innerText = `${window.game.player.kmTraveled} miles`;
+  txtElCPUKMTraveled.innerText = `${window.game.cpu.kmTraveled} miles`;
   spanElPlayerState.innerText = window.game.player.state;
   spanElCPUState.innerText = window.game.cpu.state;
 }
 
-
+// function draws a card by default when it's player's turn
 function setupTurnForPlayer() {
   let player = window.game.player;
   window.game.draw(player.hand);
   refreshDisplay();
 }
 
-
+// function used by player
 function playTurn() {
   console.log("playing selected card", window.selectedCard);
 
+  // can't play if no card is selected
   if(window.selectedCard == undefined) {
     alert("Please first select a card");
     return;
@@ -551,46 +545,21 @@ function playTurn() {
 
   let cardIndex = window.selectedCard.getAttribute('card-index');
   let actualCard = window.game.player.hand[cardIndex];
-  console.log(actualCard);
 
   let result = window.game.player.play(cardIndex);
-  console.log(result);
   
+  // gives turn to CPU
   autoPlay(window.game, window.game.cpu);
 
+  // gives back turn to player when CPU's turn is over
   setupTurnForPlayer();
-  // if (startGame == true) {
-  //   // 1 Draw a card from draw pile
-   
-  //   // 2 Show that card in the players' hand (it will be the 7th card)
-  //   //      liElPlayerHand.appendChild('liElPlayerhand'); 
-  //   // 3 Select the card to play
-  //   //lilElPlayerHand.addEventListener('click', )
-  //   // if card is played && card CAN be applied => let cpu play
-  //   if (apply(card) == true) {
-  //     discardPile.push(card);
-  //     return autoPlay();
-  //   } else if (apply(card) == false) {
-  //   // if card is played && card !CAN be applied => 
-  //     alert('Please, play an other card.');
-  //   } else if (discard(card)) {
-  //   // if card is discarded => let cpu play 
-  //     discardPile.push(card);
-  //     return autoPlay();
-  //   }    
-    
-  // } else {
-  //   alert('Please, start a New Game.');
-  // }
+  
 }
 
 
 
 btnElStart.addEventListener('click', startGame);
 btnElPlay.addEventListener('click', playTurn);
-// btnElDiscard.addEventListener('click', );
-
-//idElPlayerKm.innerText = `${Player.kmTraveled}`;
 
 
 
