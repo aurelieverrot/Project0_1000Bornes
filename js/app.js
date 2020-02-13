@@ -150,12 +150,34 @@ class Player {
 
     if (card.apply(this)) {
       // applied successfully, let's remove it from their hand take card at index
-      this.hand.splice(cardIndex,1);
+      window.game.drawPile.unshift(this.hand.splice(cardIndex,1));
       return this;
     } else {
       return false;
     }
   }
+
+  discard(cardIndex) {
+    if(cardIndex < 0 || cardIndex >= this.hand.length) { // throw new Error("Can't play that card")
+      //console.log(`bad index ${cardIndex}.`)
+      return false;
+    }
+
+    let card = this.hand[cardIndex];
+
+    //console.log(`player ${this.name} playing card`, card);
+
+    if (card.apply(this)) {
+      // discarded successfully, let's remove it and put it in draw pile again
+      window.game.drawPile.unshift(this.hand.splice(cardIndex,1));
+      return this;
+    } else {
+      return false;
+    }
+  }
+
+
+
 }
 
 
@@ -467,7 +489,7 @@ function autoPlay(game, cpu) {
       break;
       // played success
     } else {
-      console.log(`\t[${cpu.name}] iterating to another card because i couldn't play that one`)
+      console.log(`\t[${cpu.name}] discarded card`)
       // let's continue playing other cards
     }
   }
@@ -484,7 +506,7 @@ function autoPlay(game, cpu) {
 // functions for the player using UI to play
 function startGame() {
   window.game = new Game();
-  console.log("game initialized");
+  //console.log("game initialized");
 
   refreshDisplay();
   setupTurnForPlayer();
@@ -534,19 +556,27 @@ function setupTurnForPlayer() {
 }
 
 // function used by player
-function playTurn() {
-  console.log("playing selected card", window.selectedCard);
-
+function playTurn(event) {
+  //console.log("playing selected card", window.selectedCard);
+  //console.log(event.target.id)
   // can't play if no card is selected
   if(window.selectedCard == undefined) {
     alert("Please first select a card");
     return;
   }
 
+
   let cardIndex = window.selectedCard.getAttribute('card-index');
   let actualCard = window.game.player.hand[cardIndex];
 
-  let result = window.game.player.play(cardIndex);
+  // if btn Play is clicked => plays selected card / if btn Discard is clicked => discards selected card
+  if (event.target.id === 'play') {
+    window.game.player.play(cardIndex);
+  } else if (event.target.id === 'discard') {
+    window.game.player.discard(cardIndex);
+  }
+
+  
   
   // gives turn to CPU
   autoPlay(window.game, window.game.cpu);
@@ -558,8 +588,10 @@ function playTurn() {
 
 
 
+
 btnElStart.addEventListener('click', startGame);
 btnElPlay.addEventListener('click', playTurn);
+btnElDiscard.addEventListener('click', playTurn);
 
 
 
