@@ -1,5 +1,53 @@
 //////// PROJECT 0: 1000 bornes //////////
 
+///////////////////////////////////////////
+//let idElPlayerKm = document.getElementById('playerKM');
+//let idElCpuKm = document.getElementById('cpuKM');
+
+// player's hand
+// let ulElPlayerHand = document.getElementById('ulplayerHand');
+// let lilElPlayerHand = document.createElement('li');
+
+// buttons
+let btnElStart = document.getElementById('start');
+let btnElDraw = document.getElementById('draw');
+let btnElDiscard = document.getElementById('discard');
+
+// cards in hand
+let playerCardsEl = document.querySelectorAll('.playerHand');
+
+
+
+// placeholder for new game
+let game;
+
+
+
+/////////////////////////////
+// Images
+let  imgStop = "url('./images/stop.png')";
+     imgFlatTire = "url('./images/flat_tire.png')";
+     imgAccident = "url('./images/accident.png')";
+     imgGasoline = "url('./images/gasoline.png')";
+     imgKm25 = "url('./images/km25.png')";
+     imgKm50 = "url('./images/km50.png')";
+     imgKm75 = "url('./images/km75.png')";
+     imgKm100 = "url('./images/km100.png')";
+     imgKm150 = "url('./images/km150.png')";
+     imgKm200 = "url('./images/km200.png')";
+     imgRoll = "url('./images/roll.png')";
+     imgSpareTire = "url('./images/spare_tire.png')";
+     imgRepairs = "url('./images/repairs.png')";
+     imgOutOfGas = "url('./images/out_of_gas.png')";
+
+
+
+
+
+
+
+///////////////////////////////////////////
+
 // stolen from https://javascript.info/task/shuffle
 function shuffle(array) {
   array.sort(() => Math.random() - 0.5);
@@ -212,20 +260,20 @@ class Game {
 
 
   draw(hand) {
-    hand.push(this.drawPile.pop());
+    hand.unshift(this.drawPile.pop());
   }
-
-
   
   throwAndDraw(player) {
+    // first pick a card from drawPile
+    this.draw(player.hand);
+
     // throw first one, don't care about optimizing which card to throw
     let discardedCard = player.hand.pop();
     console.log("\tdiscarding", discardedCard);
     this.discardPile.push(discardedCard);
     console.log(`\tnow discard pile`, this.discardPile)
 
-    // draw one card
-    this.draw(player.hand);
+    
   }
   
 }
@@ -379,7 +427,7 @@ class RollCard extends RemedyCard {
       player.letsRoll();
       return true;
     } else {
-      console.log("i can't be applied because i don't have a flat tire");
+      console.log("i can't be applied because i'm already going");
       return false;
     }
   }
@@ -406,66 +454,78 @@ class DistanceCard extends Card {
   }
 }
 
-function autoPlay(game, player) {
+
+
+//////////////////////////////////////////////////////////////////
+// function autoplay for the CPU
+function autoPlay(game, cpu) {
   // make the CPU iterate over its cards until one can be played (apply doesn't return false)
-  let cards = player.hand;
+  let cards = cpu.hand;
   for (const [cardIndex, card] in cards) {
     console.log("hey", cardIndex);
-    if (player.play(cardIndex)) {
-      console.log(`${player.name} played successfully`)
-      return true;
+    if (cpu.play(cardIndex) == true) {
+      console.log(`${cpu.name} played successfully`)
+      return playTurn();
       // played success
     } else {
-      console.log(`\t[${player.name}] iterating to another card because i couldn't play that one`)
+      console.log(`\t[${cpu.name}] iterating to another card because i couldn't play that one`)
       // let's continue playing other cards
     }
   }
-  game.throwAndDraw(player);
+  game.throwAndDraw();
   return false; // couldn't find any card working, we should have returned true above
 }
 
 
-let game = new Game();
-// console.log(game.player);
-// console.log(game.cpu);
+// functions for the player using UI to play
+function startGame() {
+  game = new Game();
+  console.log("game initialized");
 
-// player.play(0);
-console.log("begin autoplay");
-
-for(let i = 0; i <10; ++i) {
-  console.log("================= TURN", i)
-  autoPlay(game, game.player);
-  autoPlay(game, game.cpu);
+  for (i = 0; i < playerCardsEl.length -1 ; i++) {
+    console.log(game.player.hand[i].constructor.name);
+    playerCardsEl[i].style.background = "url('./images/km25.png')";
+    playerCardsEl[i].innerText = '';
+  }
 }
-console.log("after autoplay");
 
-// console.log(game.player);
-// console.log(game.cpu);
-console.log(game);
+function playTurn() {
+  if (startGame == true) {
+    // 1 Draw a card from draw pile
+    playerHand = draw();
+    // 2 Show that card in the players' hand (it will be the 7th card)
+    //      liElPlayerHand.appendChild('liElPlayerhand'); 
+    // 3 Select the card to play
+    //lilElPlayerHand.addEventListener('click', )
+    // if card is played && card CAN be applied => let cpu play
+    if (apply(card) == true) {
+      discardPile.push(card);
+      return autoPlay();
+    } else if (apply(card) == false) {
+    // if card is played && card !CAN be applied => 
+      alert('Please, play an other card.');
+    } else if (discard(card)) {
+    // if card is discarded => let cpu play 
+      discardPile.push(card);
+      return autoPlay();
+    }    
+    
+  } else {
+    alert('Please, start a New Game.');
+  }
+}
 
-// game.play()
-// some how get input from me
-// apply my card
-// make other player play instantly
-//     and give focus back to me
+
+
+btnElStart.addEventListener('click', startGame);
+btnElDraw.addEventListener('click', draw);
+// btnElDiscard.addEventListener('click', );
+
+//idElPlayerKm.innerText = `${Player.kmTraveled}`;
 
 
 
 
-// let card = deck[0];
-
-// card.apply(player);
-// console.log("L162", player);
-
-// player.setState('going');
-// console.log("L166", player);
-
-// card.apply(player);
-// console.log(player);
-
-// card = new RepairCard();
-// card.apply(player);
-// console.log(player);
 
 
 ///////////////

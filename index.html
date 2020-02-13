@@ -16,10 +16,9 @@
   <h1><span id='blue'>1000 Bornes</span> - <span id='red'>The Game</span></h1>
   <button id='start'>Start New Game</button>
 
-  <main>
-    <div class='playerBoard'>
+  <main class='playerBoard'>
       <h2>PLAYER SIDE</h2>
-      <ul>
+      <ul id='ulplayerHand'>
         <li class='playerHand'>card1</li>
         <li class='playerHand'>card2</li>
         <li class='playerHand'>card3</li>
@@ -31,22 +30,24 @@
       <div class='activeBoard'>
           <div id='travel'>
               <p>You traveled</p>
-              <p id='playerKM'>100</p>
+              <p id='playerKM'>100 km</p>
           </div>
           <div class='active' id='playerHazard'>card hazard</div>
           <div class='active' id='playerRemedy'>card remedy</div>
       </div>
+      <!--
       <ul>
         <li id='player50'>card 50</li>
         <li id='player75'>card 75</li>
         <li id='player100'>card 100</li>
         <li id='player150'>card 150</li>
         <li id='player200'>card 200</li>
-      </ul>
+      </ul> 
+    -->
 
     </div>
 
-
+<!---
     <div class='cpuBoard'>
         <h2>CPU SIDE</h2>
       <ul>
@@ -61,7 +62,7 @@
       <div class='activeBoard'>
           <div id='travel'>
               <p>CPU traveled</p>
-              <p id='cpuKM'>100</p>
+              <p id='cpuKM'>100 km</p>
           </div>
           <div class='active' id='cpuHazard'>card hazard</div>
           <div class='active' id='cpuRemedy'>card remedy</div>
@@ -76,12 +77,12 @@
 
     </div>
 
-
+  -->
 
   </main>
 
-  <button>Draw Card</button>
-  <button>Discard Card</button>
+  <button id='draw'>Draw Card</button>
+  <button id='discard'>Discard Card</button>
   
 </body>
 </html>
