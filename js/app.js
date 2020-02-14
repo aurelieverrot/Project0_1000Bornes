@@ -1,6 +1,5 @@
 //////// PROJECT 0: 1000 bornes //////////
 
-///////////////////////////////////////////
 
 
 // DOM variables
@@ -22,10 +21,6 @@ let remedyCardEl  = document.getElementById('playerRemedy');
 // placeholder for new game
 let game;
 
-
-function displayCard(card) {
-
-}
 
 ///////////////////////////////////////////
 
@@ -55,9 +50,9 @@ class Player {
 
   // function changing the state by calling specific state functions
   setState(newState) {
-    // TODO : validation of the state value
     this.state = newState;
   }
+
 
   //// Hazards events
 
@@ -142,13 +137,9 @@ class Player {
   // or return false if not
   play(cardIndex) {
     if(cardIndex < 0 || cardIndex >= this.hand.length) { // throw new Error("Can't play that card")
-      //console.log(`bad index ${cardIndex}.`)
       return false;
     }
-
     let card = this.hand[cardIndex];
-
-    //console.log(`player ${this.name} playing card`, card);
 
     if (card.apply(this)) {
       // applied successfully, let's remove it from their hand take card at index
@@ -167,18 +158,9 @@ class Player {
 
     let card = this.hand[cardIndex];
 
-    //console.log(`player ${this.name} playing card`, card);
-
-    //if (card.apply(this)) {
-      // discarded successfully, let's remove it and put it in draw pile again
-      window.game.drawPile.unshift(this.hand.splice(cardIndex,1));
-     // return this;
-    // } else {
-    //   return false;
-    // }
+    window.game.drawPile.unshift(this.hand.splice(cardIndex,1));
+     
   }
-
-
 
 }
 
@@ -199,10 +181,7 @@ class Game {
     // give cards in player's hand
     this.initialDraw(this.player);
     this.initialDraw(this.cpu);
-
-
-    // 4/ rollPile, hazardPile, remedyPile, and discardPile are empty
-    //this.discardPile = [];
+    
   }
 
   initialDraw(player) {
@@ -245,13 +224,13 @@ class Game {
     hand.push(this.drawPile.pop());
   }
   
-  throwRandomCard(player) {
-    // // throw first one, don't care about optimizing which card to throw
-    // let discardedCard = player.hand.shift();
-    // console.log("\tdiscarding", discardedCard);
-    // this.discardPile.push(discardedCard);
-    // console.log(`\tnow discard pile`, this.discardPile)
-  }
+  // throwRandomCard(player) {
+  //   // // throw first one, don't care about optimizing which card to throw
+  //   // let discardedCard = player.hand.shift();
+  //   // console.log("\tdiscarding", discardedCard);
+  //   // this.discardPile.push(discardedCard);
+  //   // console.log(`\tnow discard pile`, this.discardPile)
+  // }
   
 }
 ////////////////////
@@ -488,7 +467,7 @@ function autoPlay(game, cpu) {
     if (cpu.play(cardIndex) == true) {
       console.log(`${cpu.name} played successfully`)
       playedCard = true;
-      return;    // =========> before it was "break;"
+      return;
       // played success
     } else {
       // let's continue playing other cards
@@ -500,7 +479,6 @@ function autoPlay(game, cpu) {
   } else {   
     game.drawPile.unshift(cards.pop());
     console.log(`\t[${cpu.name}] discarded card`) 
-    //game.throwRandomCard(cpu);
     return false; // couldn't find any card working, we should have returned true above
   }
 }
@@ -513,7 +491,7 @@ function startGame() {
 
   refreshDisplay();
   setupTurnForPlayer();
-  remedyCardEl.style.background = ``
+  remedyCardEl.style.background = ""
 
 }
 
@@ -530,7 +508,6 @@ function toggleSelectedCard(targetEl) {
 
   window.selectedCard = el;
   el.style.border = "2px dashed black";
-  //console.log("card selected", window.selectedCard);
 }
 
 function refreshDisplay() {
@@ -538,7 +515,6 @@ function refreshDisplay() {
     let card = window.game.player.hand[i];
 
     if (card) { // if we only have 6 cards... because seems like it's useful to model that somehow... i dont know man
-      //console.log(card.constructor.name);
       playerCardsEl[i].style.background = card.getImage();
       playerCardsEl[i].innerText = '';
       playerCardsEl[i].setAttribute('card-index', i.toString());
@@ -553,6 +529,8 @@ function refreshDisplay() {
   spanElCPUState.innerText = window.game.cpu.state;
   if (window.game.player.state === 'Going') {
     remedyCardEl.style.background = `url('./images/roll.png')`
+  } else {
+    remedyCardEl.style.background = ""
   }
 }
 
@@ -565,14 +543,11 @@ function setupTurnForPlayer() {
 
 // function used by player
 function playTurn(event) {
-  //console.log("playing selected card", window.selectedCard);
-  //console.log(event.target.id)
   // can't play if no card is selected
   if(window.selectedCard == undefined) {
     alert("Please first select a card");
     return;
   }
-
 
   let cardIndex = window.selectedCard.getAttribute('card-index');
   let actualCard = window.game.player.hand[cardIndex];
@@ -593,62 +568,9 @@ function playTurn(event) {
 }
 
 
-
-
 btnElStart.addEventListener('click', startGame);
 btnElPlay.addEventListener('click', playTurn);
 btnElDiscard.addEventListener('click', playTurn);
-
-
-
-
-
-
-///////////////
-//pseudo code
-///////////////
-
-
-
-// // TURN IF !ROLL CARD
-// 1/ each player pick a card from the draw pile:
-//   if player has a rollCard, he places it on rollPile
-//   if Not, he chooses a card from his hand and place it in discardPile
-//   change player
-
-// // TURN WITH A ROLL CARD && !HAZARD CARD
-// 2/ he picks a card from drawPile
-//    then he can:
-//     - place distance on distancePile, and add distance to kmTraveled
-//     - place a hazard card on player2's hazardPile
-//     - discard a card in discardPile
-//    if he plays a remedy card, pop up alert: Move not authorized 
-//    if kmTraveled >= 1000, player wins, other player looses
-//        if not change player
-
-// // TURN WITH A HAZARD CARD
-// 3/ if player has a hazardCard in hazardPile
-//    he picks a card from drawPile
-//    then he can:
-//     - place a hazard card on player2's hazard pile
-//     - place the good remedy card on his remedyPile => this action empties hazardPile && remedyPile
-//     - discard a card
-//    if he plays distanceCard, pop up alert: Move not authorized
-//    if he plays a rollCard, pop up alert: Move not authorized
-//    change player
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
