@@ -63,6 +63,7 @@ The first player that reaches 1000 "bornes" wins.
 
 ## Screenshot of the UI
 
+![Screenshot](https://github.com/aurelieverrot/Project0_1000Bornes/images/screenshot.png)
 
 ##  How the game is built
 
