@@ -16,6 +16,8 @@ let spanElCPUState    = document.getElementById('cpuState');
 
 let playerCardsEl = document.querySelectorAll('.playerHand');
 
+let remedyCardEl  = document.getElementById('playerRemedy');
+
 
 // placeholder for new game
 let game;
@@ -167,13 +169,13 @@ class Player {
 
     //console.log(`player ${this.name} playing card`, card);
 
-    if (card.apply(this)) {
+    //if (card.apply(this)) {
       // discarded successfully, let's remove it and put it in draw pile again
       window.game.drawPile.unshift(this.hand.splice(cardIndex,1));
-      return this;
-    } else {
-      return false;
-    }
+     // return this;
+    // } else {
+    //   return false;
+    // }
   }
 
 
@@ -486,18 +488,19 @@ function autoPlay(game, cpu) {
     if (cpu.play(cardIndex) == true) {
       console.log(`${cpu.name} played successfully`)
       playedCard = true;
-      break;
+      return;    // =========> before it was "break;"
       // played success
     } else {
-      console.log(`\t[${cpu.name}] discarded card`)
       // let's continue playing other cards
     }
   }
 
   if (playedCard) {
     return true;
-  } else {    
-    game.throwRandomCard(cpu);
+  } else {   
+    game.drawPile.unshift(cards.pop());
+    console.log(`\t[${cpu.name}] discarded card`) 
+    //game.throwRandomCard(cpu);
     return false; // couldn't find any card working, we should have returned true above
   }
 }
@@ -510,6 +513,8 @@ function startGame() {
 
   refreshDisplay();
   setupTurnForPlayer();
+  remedyCardEl.style.background = ``
+
 }
 
 // we start with nothing selected
@@ -546,6 +551,9 @@ function refreshDisplay() {
   txtElCPUKMTraveled.innerText = `${window.game.cpu.kmTraveled} miles`;
   spanElPlayerState.innerText = window.game.player.state;
   spanElCPUState.innerText = window.game.cpu.state;
+  if (window.game.player.state === 'Going') {
+    remedyCardEl.style.background = `url('./images/roll.png')`
+  }
 }
 
 // function draws a card by default when it's player's turn
@@ -575,8 +583,6 @@ function playTurn(event) {
   } else if (event.target.id === 'discard') {
     window.game.player.discard(cardIndex);
   }
-
-  
   
   // gives turn to CPU
   autoPlay(window.game, window.game.cpu);
