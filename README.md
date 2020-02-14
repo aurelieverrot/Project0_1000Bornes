@@ -67,7 +67,7 @@ The first player that reaches 1000 "bornes" wins.
 
 ## Screenshot of the UI
 
-![Screenshot](images/screenshot.png)
+![Screenshot](images/Screenshot.png)
 
 
 
