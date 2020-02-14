@@ -2,6 +2,10 @@
 
 "1000 Bornes" is a famous French card game where you play a driver and your goal is to travel 1000 "bornes" (informal word that means kilometers in French).
 
+![Screenshot](images/1000Bornes_logo.png)
+
+
+
 ## Rules
 
 The original game is composed of a set of 96 cards:
@@ -51,10 +55,10 @@ We take the players, give them cards (6 cards + 1 that is automatically given). 
 When the turn starts, the player has to apply a Roll card to start driving. If he doesn't have one, he can discard a card, and let the opponent play its turn.
 A Roll card will set the player's state to "Going". This will allow him to travel at the next turn, unless he receives a Hazard card from the opponent.
 A Hazard card st the player's state to a Hazard state, and the player has to apply the Remedy card associated to the Hazard state:
-    Out of Gas <> Gasoline
-    Flat Tire <> Spare Tire
-    Accident <> Repair
-    Stop <> Roll
+    - Out of Gas <> Gasoline
+    - Flat Tire <> Spare Tire
+    - Accident <> Repair
+    - Stop <> Roll
 
 After a Remedy card is applied, the car is stopped, so the layer will need a new Roll card to drive again.
 
@@ -63,7 +67,9 @@ The first player that reaches 1000 "bornes" wins.
 
 ## Screenshot of the UI
 
-![Screenshot](https://github.com/aurelieverrot/Project0_1000Bornes/images/screenshot.png)
+![Screenshot](images/screenshot.png)
+
+
 
 ##  How the game is built
 
@@ -75,7 +81,7 @@ There are 3 classes: Player, Cards, and Game.
 For example: Card > HazardCard > StopCard, AccidentCard, OutofGasCard, and FlatTireCard. Each class contains functions for their card.
 3 - Game is the Game Engine. It sets the cards, the display, resets the game, ...
 
-Thr CPU plays in autoplay, and the player decides what he plays using the UI.
+The CPU plays in autoplay, and the player decides what he plays using the UI.
 
 
 ## State of the game
